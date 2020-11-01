@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dataset="../../data/sample_dataset/intermediate"
+dataset="../../data/sn/intermediate"
 
 # num_thread=20
 multi=0.75

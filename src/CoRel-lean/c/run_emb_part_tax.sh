@@ -1,5 +1,5 @@
 # dataset directory
-dataset=../../../data/sample_dataset/intermediate
+dataset=../../../data/sn/intermediate
 
 # text file name; one document per line
 text_file=phrase_text.txt
