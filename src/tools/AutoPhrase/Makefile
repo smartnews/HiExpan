@@ -1,5 +1,6 @@
 CXX = g++
 CFLAGS = -std=c++11 -Wall -O3 -msse2  -fopenmp  -I..
+CFLAGS += -I/usr/lib/gcc/x86_64-amazon-linux/4.8.5/include/
 
 BIN = ./bin/segphrase_train ./bin/segphrase_segment
 .PHONY: clean all

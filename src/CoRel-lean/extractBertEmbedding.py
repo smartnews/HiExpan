@@ -13,7 +13,7 @@ import torch
 from pytorch_transformers import *
 import torch.nn.functional as F
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -93,8 +93,10 @@ if __name__ == "__main__":
                 continue
             sentences.extend(ctxt)
             ent_record.extend(ent)
+            ent_record = ent_record[:150] #eric added truncation to avoid GPU OOM
+            sentences = sentences[:150]
             if len(sentences) > 50:
-                tokens = [tokenizer.encode(x) for x in sentences]
+                tokens = [tokenizer.encode(x[:512]) for x in sentences] #eric truncate the long sentences to 512
                 # print(f"length of tokens: {len(tokens)}")
                 # print(f"length of entities: {len(ent_record)}")
                 # print(torch.cat([F.pad(torch.tensor(x).unsqueeze(),(0,60-len(x)), "constant", 0) for x in tokens]))
@@ -111,7 +113,7 @@ if __name__ == "__main__":
                 # print(vec.shape)
                 for i,e in enumerate(ent_record):
                     try:
-                        mask_id = tokens[i].index(103)
+                        mask_id = tokens[i].index(101)
                         vec0 = vec[i][mask_id]
                         # print(vec0)
                         if len(vec0)!=768:
