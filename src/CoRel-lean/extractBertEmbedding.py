@@ -101,7 +101,10 @@ if __name__ == "__main__":
                 # print(f"length of entities: {len(ent_record)}")
                 # print(torch.cat([F.pad(torch.tensor(x).unsqueeze(),(0,60-len(x)), "constant", 0) for x in tokens]))
                 # input_ids = torch.cat([F.pad(torch.tensor(x).unsqueeze(0),(0,4*window_size+3-len(x)), "constant", 0) for x in tokens],dim=0).cuda()
-                input_ids = torch.cat([F.pad(torch.tensor(x).unsqueeze(0),(0,24-len(x)), "constant", 0) for x in tokens],dim=0).cuda()
+                if torch.cuda.is_available():
+                    input_ids = torch.cat([F.pad(torch.tensor(x).unsqueeze(0),(0,24-len(x)), "constant", 0) for x in tokens],dim=0).cuda()
+                else:
+                    input_ids = torch.cat([F.pad(torch.tensor(x).unsqueeze(0),(0,24-len(x)), "constant", 0) for x in tokens],dim=0)
 
                 # if len(sentences) > 20:
                 #     print(f'batch size {len(sentences)} too large')

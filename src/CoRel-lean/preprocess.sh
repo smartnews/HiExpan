@@ -1,13 +1,14 @@
 #!/bin/bash
 
-dataset="../../data/sn/intermediate"
+dataset="../../data/sample_dataset/intermediate"
 
 # num_thread=20
 multi=0.75
 single=0.65
 
 # ----Run This Before Setting Autophrase Threshold-----
-# python extractCorpus.py ${dataset} ${num_thread}
+python extractCorpus.py ${dataset} ${num_thread}
+
 # cd AutoPhrase0/
 # bash auto_phrase_cp.sh ${dataset}
 
