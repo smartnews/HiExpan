@@ -4,6 +4,7 @@ TEXT_TO_SEG=${TEXT_TO_SEG:- $2}
 HIGHLIGHT_MULTI=${HIGHLIGHT_MULTI:- $3}
 HIGHLIGHT_SINGLE=${HIGHLIGHT_SINGLE:- $4}
 THREAD=${THREAD:- $5}
+ONE_FILE=${ONE_FILE:-$6} #Eric hack:let process_one_doc.sh one to write the output a file segmentation-one.txt to avoid overwriting the training results. 
 
 SEGMENTATION_MODEL=${MODEL}/segmentation.model
 TOKEN_MAPPING=${MODEL}/token_mapping.txt
@@ -72,7 +73,7 @@ fi
 
 ### END Segphrasing ###
 
-echo ${green}===Generating Output===${reset}
-java $TOKENIZER -m segmentation -i $TEXT_TO_SEG -segmented tmp/tokenized_segmented_sentences.txt -o ${MODEL}/segmentation.txt -tokenized_raw tmp/raw_tokenized_text_to_seg.txt -tokenized_id tmp/tokenized_text_to_seg.txt -c N
+echo ${green}===Generating Output at ${MODEL}/segmentation${ONE_FILE}.txt ===${reset}
+java $TOKENIZER -m segmentation -i $TEXT_TO_SEG -segmented tmp/tokenized_segmented_sentences.txt -o ${MODEL}/segmentation${ONE_FILE}.txt -tokenized_raw tmp/raw_tokenized_text_to_seg.txt -tokenized_id tmp/tokenized_text_to_seg.txt -c N
 
 ### END Generating Output for Checking Quality ###

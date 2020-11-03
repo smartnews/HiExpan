@@ -1,7 +1,10 @@
 import argparse
+import math
+import ast
 
 if __name__=="__main__":
-	
+	CORPUS_SIZE = 27.0
+
 	parser = argparse.ArgumentParser(description='main', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 	parser.add_argument('--multi', default='0.5')
 	parser.add_argument('--single', default = '0.8')
@@ -9,45 +12,47 @@ if __name__=="__main__":
 	parser.add_argument('--output',default='20news')
 	args = parser.parse_args()
 	file_name = args.output+'/phrase_dataset_'+str(args.multi)+'_'+str(args.single)+'.txt'
-	#if args.mode == 'whole':
-	#	file_name = 'models/new_nyt/dataset_'+str(args.multi)+'_'+str(args.single)+'.txt'
-	#with open('../out.txt') as f:
-	phrases = {}
-	with open(args.output+'/AutoPhrase_multi-words.txt') as f:
+	phrase_score = {}
+	phrase_IDF = {}
+
+	with open(args.output+'/AutoPhrase.txt') as f:
 		for line in f:
 			if len(line.strip().split('\t'))<2:
 				print(line)
-			phrases[line.strip().split('\t')[1]] = line.split('\t')[0]
-	with open(args.output+'/segmentation.txt') as f:
+			phrase_score[line.strip().split('\t')[1]] = float(line.split('\t')[0]) #Autophrase score. Eric [TODO] Need to add special handling for corner case like the phrase "tcp / ip" in entity2surface_names, the AutoPhrase file says "tcp ip", while  
+	with open(args.output+'/entity2surface_names.txt') as f:
+		for line in f:
+			if len(line.strip().split('\t'))<2:
+				print(line)
+			phrase_IDF[line.strip().split('\t')[0]] = ast.literal_eval(line.split('\t')[1]) #IDF
+	
+	phrase_freq_in_doc = {} 
+	with open(args.output+'/segmentation-one.txt') as f:
 		with open(file_name, 'w') as g:
-			i = 0
+			num_lines = 0
 			word_count = 0
 			for line in f:
-				doc = ''
-				i += 1
-				#if i % 1000 == 0:
-					#print(i)
+				num_lines += 1
 				temp = line.split('<phrase>')
-				if args.mode == 'phrase':
-					for seg in temp:
-						temp2 = seg.split('</phrase>')
-						if len(temp2) > 1:
-							doc += ('_').join(temp2[0].split(' ')) + ' '
-							#doc += temp2[0] + ' '
-					word_count += len(doc.split(' '))
-					g.write(doc+'\n')
-				else:
-					for seg in temp:
-						temp2 = seg.split('</phrase>')
-						if len(temp2) > 1:
-							doc += ('_').join(temp2[0].split(' ')) + temp2[1]
-							# if temp2[0] not in phrases:
-							# 	doc += temp2[0] + temp2[1]
-							# else:
-							# 	doc += ('_').join(temp2[0].split(' ')) + temp2[1]
+				for seg in temp:
+					temp2 = seg.split('</phrase>')
+					if len(temp2) > 1:
+						phrase_text = ('_').join(temp2[0].split(' '))
+						if(phrase_text in phrase_freq_in_doc):
+							phrase_freq_in_doc[phrase_text] += 1
 						else:
-							doc += temp2[0]
-					word_count += len(doc.split(' '))
-					g.write(doc.strip()+'\n')
-			print(word_count/i)
-				
+							phrase_freq_in_doc[phrase_text] = 0
+					word_count += 1
+	
+	phrase_score_in_doc = {} #for each new doc, set the phrase_score_in_doc to zero
+	for freq_in_doc, key_phrase in enumerate(phrase_freq_in_doc):
+		print(key_phrase)
+		if key_phrase in phrase_IDF:
+			for df, entity in enumerate(phrase_IDF[key_phrase]):  #although there is only one nested dictionary for each key_phrase, I am still using enumerate. There may be a better way of directly access the first item in the nested dictionary 
+				if entity in phrase_score:
+					phrase_score_in_doc[entity] = freq_in_doc *  math.log(CORPUS_SIZE/(df+1)) * phrase_score[entity] #this operation can be vectorize to accelerate
+				else:
+					print(entity) 
+	#sort by score
+	sorted_phrase_score = {k: v for k, v in sorted(phrase_score_in_doc.items(), key=lambda item: item[1], reverse=True)}
+	print(sorted_phrase_score)

@@ -16,13 +16,13 @@ python extractCorpus.py ${dataset} ${num_thread}
 # cd AutoPhrase0/
 # bash phrasal_segmentation_cp.sh ${dataset} corpus.txt ${multi} ${single}
 # cp models/${dataset}/phrase_dataset_${multi}_${single}.txt ../${dataset}/phrase_text.txt
-# bash phrasal_segmentation_cp.sh ${dataset} sentences.txt ${multi} ${single}
+bash phrasal_segmentation_cp.sh ${dataset} sentences.txt ${multi} ${single}
 # cp models/${dataset}/segmentation.txt ../${dataset}/
 # cd ../
 
 ### Generating Output for Phrasified Dataset ###
-python process_segmentation.py --multi ${multi} --single ${single} --output ${dataset} --mode whole
+python process_segmentation.py --multi ${multi} --single ${single} --output ${dataset} --mode phrase
 
 mv ${dataset}/phrase_dataset_${multi}_${single}.txt ${dataset}/phrase_text.txt
-python extractSegmentation.py ${dataset}
-python extractBertEmbedding.py ${dataset} 20
+#python extractSegmentation.py ${dataset}
+#python extractBertEmbedding.py ${dataset} 20
