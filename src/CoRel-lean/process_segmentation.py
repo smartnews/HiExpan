@@ -52,7 +52,7 @@ if __name__=="__main__":
 				if entity in phrase_score:
 					phrase_score_in_doc[entity] = freq_in_doc *  (CORPUS_SIZE/(df+1)) * phrase_score[entity] #this operation can be vectorize to accelerate
 				else:
-                                    print("Entity: {} was not found in AutoPhrase.txt\n").format(entity)
+					print("Entity: {} was not found in AutoPhrase.txt\n".format(entity))
 	#sort by score
 	sorted_phrase_score = {k: v for k, v in sorted(phrase_score_in_doc.items(), key=lambda item: item[1], reverse=True)}
 	print(json.dumps(sorted_phrase_score, indent=1))
