@@ -1,6 +1,7 @@
 import argparse
 import math
 import ast
+import json
 
 if __name__=="__main__":
 	CORPUS_SIZE = 27.0
@@ -46,13 +47,12 @@ if __name__=="__main__":
 	
 	phrase_score_in_doc = {} #for each new doc, set the phrase_score_in_doc to zero
 	for freq_in_doc, key_phrase in enumerate(phrase_freq_in_doc):
-		print(key_phrase)
 		if key_phrase in phrase_IDF:
 			for df, entity in enumerate(phrase_IDF[key_phrase]):  #although there is only one nested dictionary for each key_phrase, I am still using enumerate. There may be a better way of directly access the first item in the nested dictionary 
 				if entity in phrase_score:
-					phrase_score_in_doc[entity] = freq_in_doc *  math.log(CORPUS_SIZE/(df+1)) * phrase_score[entity] #this operation can be vectorize to accelerate
+					phrase_score_in_doc[entity] = freq_in_doc *  (CORPUS_SIZE/(df+1)) * phrase_score[entity] #this operation can be vectorize to accelerate
 				else:
-					print(entity) 
+                                    print("Entity: {} was not found in AutoPhrase.txt\n").format(entity)
 	#sort by score
 	sorted_phrase_score = {k: v for k, v in sorted(phrase_score_in_doc.items(), key=lambda item: item[1], reverse=True)}
-	print(sorted_phrase_score)
+	print(json.dumps(sorted_phrase_score, indent=1))
