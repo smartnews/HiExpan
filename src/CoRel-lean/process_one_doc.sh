@@ -14,7 +14,7 @@ multi=0.75
 single=0.65
 
 cd ../tools/AutoPhrase/
-#bash phrasal_segmentation.sh ${corpus_name} ../${data_path}/$2 ${multi} ${single} $num_thread ${ONE_FILE}
+bash phrasal_segmentation.sh ${corpus_name} ../${data_path}/$2 ${multi} ${single} $num_thread ${ONE_FILE}
 mv models/${corpus_name}/segmentation-one.txt ${path}/${data_path}/
 cd ${path}
 
