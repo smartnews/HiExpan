@@ -18,12 +18,14 @@ if __name__=="__main__":
 
 	with open(args.input_path+'/AutoPhrase.txt') as f:
 		for line in f:
-			if len(line.strip().split('\t'))<2:
-				print(line)
-			phrase_score[line.strip().split('\t')[1]] = float(line.split('\t')[0]) #Autophrase score. Eric [TODO] Need to add special handling for corner case like the phrase "tcp / ip" in entity2surface_names, the AutoPhrase file says "tcp ip", while  
+			line = line.strip()
+			cur_phrase_score = line.split('\t')
+			phrase_score[cur_phrase_score[1]] = float(cur_phrase_score[0]) 	
+	
 	phrase_DF = {}
 	with open(args.input_path+'/entity2surface_names.txt') as f:
 		for line in f:
+			line = line.strip()
 			if(line.split('\t')[0] != '-PRON-'):
 				entity_DF = ast.literal_eval(line.split('\t')[1])
 				phrase_DF.update(entity_DF) #IDF
@@ -31,14 +33,19 @@ if __name__=="__main__":
 	phrase_freq_in_doc = {} 
 	with open(args.input_path+'/entity2surface_names_one.txt') as f:
 		for line in f:
+			line = line.strip()
 			if(line.split('\t')[0] != '-PRON-'):
 				key_phrase = ast.literal_eval(line.split('\t')[1])
 				phrase_freq_in_doc.update(key_phrase)
 			
 	phrase_score_in_doc = {} #for each new doc, set the phrase_score_in_doc to zero
 	for freq_in_doc, key_phrase in enumerate(phrase_freq_in_doc):
-		if key_phrase in phrase_score and key_phrase in phrase_DF:
-			phrase_score_in_doc[key_phrase] = freq_in_doc *  (CORPUS_SIZE/(phrase_DF[key_phrase])+1) * phrase_score[key_phrase] #this operation can be vectorize to accelerate
+		if key_phrase in phrase_score:
+			if key_phrase in phrase_DF:
+				df = phrase_DF[key_phrase]				
+			else:
+				df = 0
+			phrase_score_in_doc[key_phrase] = freq_in_doc *  (CORPUS_SIZE/(df+1)) * math.sqrt(phrase_score[key_phrase]) #this operation can be vectorize to accelerate
 		else:
 			print("Entity: {} was not found in AutoPhrase.txt\n".format(key_phrase))
 	#sort by score
