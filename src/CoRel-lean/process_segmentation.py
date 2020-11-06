@@ -28,7 +28,10 @@ if __name__=="__main__":
 			line = line.strip()
 			if(line.split('\t')[0] != '-PRON-'):
 				entity_DF = ast.literal_eval(line.split('\t')[1])
-				phrase_DF.update(entity_DF) #IDF
+				#group the counts of similar forms of the same entity into one
+				total_count = sum(entity_DF.values())
+				key = list(entity_DF.keys())[0]
+				phrase_DF.update({key: total_count}) #IDF
 	
 	phrase_freq_in_doc = {} 
 	with open(args.input_path+'/entity2surface_names_one.txt') as f:
@@ -36,7 +39,9 @@ if __name__=="__main__":
 			line = line.strip()
 			if(line.split('\t')[0] != '-PRON-'):
 				key_phrase = ast.literal_eval(line.split('\t')[1])
-				phrase_freq_in_doc.update(key_phrase)
+				total_count = sum(key_phrase.values())
+				key = list(key_phrase.keys())[0]
+				phrase_freq_in_doc.update({key: total_count})
 			
 	phrase_score_in_doc = {} #for each new doc, set the phrase_score_in_doc to zero
 	for freq_in_doc, key_phrase in enumerate(phrase_freq_in_doc):
