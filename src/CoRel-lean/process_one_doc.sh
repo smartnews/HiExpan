@@ -13,10 +13,13 @@ MIN_SUP=10
 multi=0.75
 single=0.65
 
-cd ../tools/AutoPhrase/
-bash phrasal_segmentation.sh ${corpus_name} ../${data_path}/$2 ${multi} ${single} $num_thread ${ONE_FILE}
-mv models/${corpus_name}/segmentation-one.txt ${path}/${data_path}/
-cd ${path}
+# cd ../tools/AutoPhrase/
+# bash phrasal_segmentation.sh ${corpus_name} ../${data_path}/$2 ${multi} ${single} $num_thread ${ONE_FILE}
+# mv models/${corpus_name}/segmentation-one.txt ${path}/${data_path}/
+# cd ${path}
+
+#python ../corpusProcessing/annotateNLPFeature_new.py -corpusName ${corpus_name} -input_path ${data_path}/segmentation-one.txt -output_path ${data_path}/segmentation-one.json
+#python3 keyTermExtraction_one_doc.py sn
 
 ### Generating Output for Phrasified data_path ###
 python process_segmentation.py --multi ${multi} --single ${single} --output ${data_path} --mode phrase
