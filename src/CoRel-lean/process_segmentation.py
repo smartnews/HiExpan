@@ -21,24 +21,26 @@ if __name__=="__main__":
 			if len(line.strip().split('\t'))<2:
 				print(line)
 			phrase_score[line.strip().split('\t')[1]] = float(line.split('\t')[0]) #Autophrase score. Eric [TODO] Need to add special handling for corner case like the phrase "tcp / ip" in entity2surface_names, the AutoPhrase file says "tcp ip", while  
+	phrase_DF = {}
 	with open(args.input_path+'/entity2surface_names.txt') as f:
 		for line in f:
-			phrase_IDF[line.strip().split('\t')[0]] = ast.literal_eval(line.split('\t')[1]) #IDF
+			if(line.split('\t')[0] != '-PRON-'):
+				entity_DF = ast.literal_eval(line.split('\t')[1])
+				phrase_DF.update(entity_DF) #IDF
 	
 	phrase_freq_in_doc = {} 
 	with open(args.input_path+'/entity2surface_names_one.txt') as f:
 		for line in f:
-			key_phrase = ast.literal_eval(line.split('\t')[1])
-			phrase_freq_in_doc.update(key_phrase)
+			if(line.split('\t')[0] != '-PRON-'):
+				key_phrase = ast.literal_eval(line.split('\t')[1])
+				phrase_freq_in_doc.update(key_phrase)
 			
 	phrase_score_in_doc = {} #for each new doc, set the phrase_score_in_doc to zero
 	for freq_in_doc, key_phrase in enumerate(phrase_freq_in_doc):
-		if key_phrase in phrase_IDF:
-			for df, entity in enumerate(phrase_IDF[key_phrase]):  #although there is only one nested dictionary for each key_phrase, I am still using enumerate. There may be a better way of directly access the first item in the nested dictionary 
-				if entity in phrase_score:
-					phrase_score_in_doc[entity] = freq_in_doc *  (CORPUS_SIZE/(df+1)) * phrase_score[entity] #this operation can be vectorize to accelerate
-				else:
-					print("Entity: {} was not found in AutoPhrase.txt\n".format(entity))
+		if key_phrase in phrase_score and key_phrase in phrase_DF:
+			phrase_score_in_doc[key_phrase] = freq_in_doc *  (CORPUS_SIZE/(phrase_DF[key_phrase])+1) * phrase_score[key_phrase] #this operation can be vectorize to accelerate
+		else:
+			print("Entity: {} was not found in AutoPhrase.txt\n".format(key_phrase))
 	#sort by score
 	sorted_phrase_score = {k: v for k, v in sorted(phrase_score_in_doc.items(), key=lambda item: item[1], reverse=True)}
 	print(json.dumps(sorted_phrase_score, indent=1)) 
