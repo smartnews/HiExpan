@@ -9,6 +9,7 @@ from collections import defaultdict
 import sys
 import mmap
 from tqdm import tqdm
+import os
 
 
 def get_num_lines(file_path):
@@ -45,35 +46,37 @@ def main(corpusName):
     entity2id = {}
     entity2surface_names = {}
     entity2freq = defaultdict(int)
+    with tqdm(total=os.path.getsize(inputFile)) as pbar:
+        with open(inputFile, "r") as fin, open(outputSentenceJsonFile, "w") as fout:
+            #for line in tqdm(fin, total=get_num_lines(inputFile), desc="Extract Key Terms from Corpus"):
+            for line in fin:
+                pbar.update(len(line.encode('utf-8')))
+                line = line.strip()
+                sentence = json.loads(line)
+                lemma_list = sentence["lemma"]
+                ems_new = []
+                for mention in sentence["entityMentions"]:
+                    entity = mention["text"].lower()
+                    if entity == "":  # this can happen because AutoPhrase returns <phrase></phrase>
+                        continue
+                    lemma_signature = "_".join(lemma_list[mention["start"]:mention["end"]+1])
 
-    with open(inputFile, "r") as fin, open(outputSentenceJsonFile, "w") as fout:
-        for line in tqdm(fin, total=get_num_lines(inputFile), desc="Extract Key Terms from Corpus"):
-            line = line.strip()
-            sentence = json.loads(line)
-            lemma_list = sentence["lemma"]
-            ems_new = []
-            for mention in sentence["entityMentions"]:
-                entity = mention["text"].lower()
-                if entity == "":  # this can happen because AutoPhrase returns <phrase></phrase>
-                    continue
-                lemma_signature = "_".join(lemma_list[mention["start"]:mention["end"]+1])
+                    if lemma_signature not in entity2id:  # a new "entity"
+                        entity2id[lemma_signature] = cnt
+                        cnt += 1
+                        entity2surface_names[lemma_signature] = defaultdict(int)
 
-                if lemma_signature not in entity2id:  # a new "entity"
-                    entity2id[lemma_signature] = cnt
-                    cnt += 1
-                    entity2surface_names[lemma_signature] = defaultdict(int)
+                    entity2freq[lemma_signature] += 1
+                    entity2surface_names[lemma_signature][entity] += 1
 
-                entity2freq[lemma_signature] += 1
-                entity2surface_names[lemma_signature][entity] += 1
+                    mention["entityId"] = entity2id[lemma_signature]
+                    ems_new.append(mention)
 
-                mention["entityId"] = entity2id[lemma_signature]
-                ems_new.append(mention)
+                # remove duplicates in ems_new
+                ems_new = deduplicate(ems_new)
 
-            # remove duplicates in ems_new
-            ems_new = deduplicate(ems_new)
-
-            sentence["entityMentions"] = ems_new
-            fout.write(json.dumps(sentence)+"\n")
+                sentence["entityMentions"] = ems_new
+                fout.write(json.dumps(sentence)+"\n")
 
     with open(outputEntity2IDFile, "w") as fout:
         for ele in sorted(entity2id.items(), key = lambda x:(x[0], x[1])):
