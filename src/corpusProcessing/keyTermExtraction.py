@@ -58,7 +58,6 @@ def main(corpusName):
                     print(e)
                     continue
                 lemma_list = sentence["lemma"]
-                ems_new = []
                 for mention in sentence["entityMentions"]:
                     entity = mention["text"].lower()
                     if entity == "":  # this can happen because AutoPhrase returns <phrase></phrase>
