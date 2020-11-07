@@ -2,6 +2,7 @@ import argparse
 import math
 import ast
 import json
+from spacy.lang.en import English
 
 if __name__=="__main__":
 	CORPUS_SIZE = 27.0
@@ -42,7 +43,10 @@ if __name__=="__main__":
 				total_count = sum(key_phrase.values())
 				key = list(key_phrase.keys())[0]
 				phrase_freq_in_doc.update({key: total_count})
-			
+
+	# Load English tokenizer, tagger, parser, NER and word vectors
+	nlp = English()
+
 	phrase_score_in_doc = {} #for each new doc, set the phrase_score_in_doc to zero
 	for freq_in_doc, key_phrase in enumerate(phrase_freq_in_doc):
 		if key_phrase in phrase_score:
@@ -50,7 +54,10 @@ if __name__=="__main__":
 				df = phrase_DF[key_phrase]				
 			else:
 				df = 0
-			phrase_score_in_doc[key_phrase] = freq_in_doc *  (CORPUS_SIZE/(df+1)) * math.sqrt(phrase_score[key_phrase]) #this operation can be vectorize to accelerate
+			if(key_phrase in nlp.vocab and nlp.vocab[key_phrase].is_stop):
+				phrase_score_in_doc[key_phrase] = -1
+			else:	
+				phrase_score_in_doc[key_phrase] = freq_in_doc *  (CORPUS_SIZE/(df+1)) * math.sqrt(phrase_score[key_phrase]) #this operation can be vectorize to accelerate
 		else:
 			print("Entity: {} was not found in AutoPhrase.txt\n".format(key_phrase))
 	#sort by score
