@@ -1,5 +1,9 @@
 .idea
 data
+.ipynb_checkpoints
+*.pyc
+*.log
+*.lock
 src/CoRel-lean/c/train_emb_part_tax
 src/tools/AutoPhrase/bin/
 src/tools/AutoPhrase/models/sample_dataset/

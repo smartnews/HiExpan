@@ -49,6 +49,7 @@ class ServeHandler(tornado.web.RequestHandler):
                 req_fname,
                 'ignore_test_input_article.py'
             ])
+            logging.info(f"segmentation took {time.time() - start_time}")
 
             # pke from segmented file
             segmented_fname = req_fname + '-seg.txt'
@@ -57,7 +58,8 @@ class ServeHandler(tornado.web.RequestHandler):
             extractor.candidate_selection()
             extractor.candidate_weighting()
             kp_scores = extractor.get_n_best(n=20)
-
+            logging.info(f"kpe took {time.time() - start_time}")
+            
             # build response
             result = dict(status=0, debug={})
             keyphrases = []
