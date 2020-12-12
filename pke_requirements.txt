@@ -1,0 +1,8 @@
+numpy
+scipy
+tqdm
+gensim
+SpaCy
+ConcurrentLogHandler==0.9.1
+requests==2.19.1
+tornado==5.0.2
