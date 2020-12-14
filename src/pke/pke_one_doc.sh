@@ -16,4 +16,7 @@ cd ../tools/AutoPhrase/
 bash phrasal_segmentation_pke.sh ${corpus_name} $2 ${multi} ${single} $num_thread
 cd ${path}
 
-python test_input_article.py $2-seg.txt
+if [ -z $3 ] ; then
+    python test_input_article.py $2-seg.txt
+fi
+
